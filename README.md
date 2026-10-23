@@ -121,7 +121,7 @@ REA kontrolü ("REA araçları ve Ghidra sağlayıcısı bu oturumda kullanılab
 
 ![REA kontrolü](docs/rea-check.png)
 
-Demo (60 saniye, CLI): _video bağlantısı eklenecek_ · çekim senaryosu: [docs/DEMO.md](docs/DEMO.md)
+Demo (60 saniye, CLI): https://youtu.be/b1nAq3qjpn0 · çekim senaryosu: [docs/DEMO.md](docs/DEMO.md)
 
 ## Atıf
 
