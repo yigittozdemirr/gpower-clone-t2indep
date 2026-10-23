@@ -32,3 +32,12 @@ V30,criterion,2,0.5,,0.8,,30,45,,cift kuyruk criterion
 V31,compromise,2,0.5,,,,30,45,4,cift kuyruk compromise
 V32,a-priori,2,0.5,0.05,0.8,0,,,,gecersiz: oran 0
 V33,post-hoc,2,0.5,0.05,,,1,10,,gecersiz: n1 = 1
+V34,a-priori,2,10,0.05,0.8,0.25,,,,alt sinir: buyuk etki ve oran < 1
+V35,a-priori,2,10,0.05,0.8,4,,,,alt sinir: buyuk etki ve oran > 1
+V36,a-priori,2,10,0.05,0.8,0.1,,,,alt sinir: kucuk grup 2'den az olabilir mi?
+V37,a-priori,2,0.5,0.05,0.8,0.01,,,,oran alt sinir (0.01)
+V38,a-priori,2,0.5,0.05,0.8,100,,,,oran ust sinir (100)
+V39,a-priori,2,0.5,0.05,0.8,0.009,,,,gecersiz: oran < 0.01
+V40,a-priori,2,0.5,0.05,0.8,100.5,,,,gecersiz: oran > 100
+V41,sensitivity,2,,0.05,0.04,,20,20,,guc < alfa (sensitivity)
+V42,a-priori,1,0.5,0.05,0.8,0.33,,,,yarim yuvarlama siniri

@@ -1,1 +1,46 @@
 id,mode,tails,d,alpha,power,ratio,n1,n2,beta_alpha_ratio,gp_ncp,gp_critical_t,gp_df,gp_n1,gp_n2,gp_n_total,gp_actual_power,gp_power,gp_alpha,gp_beta,gp_d,gp_error,screenshot,note
+V01,a-priori,1,0.5,0.05,0.95,1,,,,,,,,,,,,,,,sonuç yok,oracle/screenshots/V01.png,acik vektor (CONTRACT ornegi)
+V02,a-priori,2,0.5,0.05,0.95,1,,,,3.6228442,1.9714347,208,105,105,210,0.9501287,,,,,,oracle/screenshots/V02.png,odev ek dokumani ornegi
+V03,a-priori,2,0.5,0.05,0.8,1,,,,,,,,,,,,,,,sonuç yok,oracle/screenshots/V03.png,klasik d=0.5 guc .80
+V04,a-priori,1,0.5,0.05,0.95,3,,,,3.3212924,1.6514481,232,59,175,234,0.9522160,,,,,,oracle/screenshots/V04.png,esit olmayan oran: n2 = 3*n1 mi?
+V05,a-priori,2,0.5,0.05,0.8,1.5,,,,2.8389613,1.9780988,132,54,80,134,0.8046333,,,,,,oracle/screenshots/V05.png,esit olmayan oran
+V06,a-priori,2,0.8,0.05,0.8,0.25,,,,2.8621670,1.9908471,78,64,16,80,0.8069741,,,,,,oracle/screenshots/V06.png,esit olmayan oran (n2 kucuk)
+V07,a-priori,2,0.3,0.01,0.9,0.7,,,,3.8661120,2.5830362,684,404,282,686,0.8998856,,,,,,oracle/screenshots/V07.png,esit olmayan oran
+V08,a-priori,2,0.5,0.05,0.8,2,,,,2.8284271,1.9768110,142,48,96,144,0.8021395,,,,,,oracle/screenshots/V08.png,esit olmayan oran (tam kat)
+V09,a-priori,1,0.5,0.05,0.95,0.5,,,,3.3166248,1.6526651,196,132,66,198,0.9515720,,,,,,oracle/screenshots/V09.png,esit olmayan oran
+V10,a-priori,2,0.5,0.05,0.8,0.05,,,,2.8033616,1.9633881,694,663,33,696,0.7994111,,,,,,oracle/screenshots/V10.png,uc oran
+V11,a-priori,2,0.5,0.05,0.8,1.37,,,,2.8391206,1.9783804,130,56,76,132,0.8045888,,,,,,oracle/screenshots/V11.png,kesirli oran
+V12,a-priori,1,0.35,0.025,0.9,2.5,,,,3.2546112,1.9656014,422,121,303,424,0.9009932,,,,,,oracle/screenshots/V12.png,kesirli oran tek kuyruk
+V13,a-priori,2,0.2,0.05,0.8,1,,,,2.8071338,1.9629867,786,394,394,788,0.8005931,,,,,,oracle/screenshots/V13.png,kucuk etki
+V14,a-priori,2,0.1,0.05,0.9,1,,,,3.2426841,1.9605284,4204,2103,2103,4206,0.9000751,,,,,,oracle/screenshots/V14.png,kucuk etki
+V15,a-priori,2,0.02,0.05,0.8,1,,,,2.8016424,1.9599942,78490,39246,39246,78492,0.8000074,,,,,,oracle/screenshots/V15.png,cok kucuk etki
+V16,a-priori,2,0.001,0.05,0.95,1,,,,3.6048176,1.9599640,51978838,25989420,25989420,51978840,0.9500000,,,,,,oracle/screenshots/V16.png,asiri kucuk etki (ust sinir)
+V17,a-priori,2,2.5,0.05,0.8,1,,,,3.5355339,2.4469119,6,4,4,8,0.8359504,,,,,,oracle/screenshots/V17.png,buyuk etki
+V18,a-priori,2,5,0.05,0.8,1,,,,6.1237244,2.7764451,4,3,3,6,0.9927759,,,,,,oracle/screenshots/V18.png,cok buyuk etki (alt sinir)
+V19,a-priori,2,10,0.05,0.8,1,,,,10.0000000,4.3026527,2,2,2,4,0.9927467,,,,,,oracle/screenshots/V19.png,asiri buyuk etki (alt sinir)
+V20,a-priori,1,0.5,0.05,0.04,1,,,,,,,,,,,,,,,Tamam | Power must be greater than or equal to alpha.,oracle/screenshots/V20.png,guc < alfa
+V21,a-priori,1,0.5,0.05,0.05,1,,,,0.5000000,2.9199856,2,2,2,4,0.0994117,,,,,,oracle/screenshots/V21.png,guc = alfa
+V22,a-priori,2,0.65,0.001,0.99,1,,,,5.6851781,3.3228171,304,153,153,306,0.9904571,,,,,,oracle/screenshots/V22.png,cok kucuk alfa
+V23,post-hoc,1,0.5,0.05,,,88,88,,3.3166248,1.6536580,174,,,,,0.9514254,,,,,oracle/screenshots/V23.png,acik vektor
+V24,post-hoc,2,0.1,0.05,,,10,10,,0.2236068,2.1009220,18,,,,,0.0551613,,,,,oracle/screenshots/V24.png,cift kuyruk iki kuyruk da sayiliyor mu?
+V25,post-hoc,2,0.5,0.05,,,40,20,,1.8257419,2.0017175,58,,,,,0.4347675,,,,,oracle/screenshots/V25.png,esit olmayan grup
+V26,post-hoc,2,1.2,0.01,,,5,7,,2.0493902,3.1692727,10,,,,,0.1972307,,,,,oracle/screenshots/V26.png,kucuk n
+V27,post-hoc,2,0.5,0.05,,,2,2,,0.5000000,4.3026527,2,,,,,0.0615079,,,,,oracle/screenshots/V27.png,en kucuk n
+V28,sensitivity,2,,0.05,0.8,,20,30,,2.8592138,2.0106348,48,,,,,,,,0.8253839,,oracle/screenshots/V28.png,cift kuyruk sensitivity
+V29,sensitivity,2,,0.05,0.05,,20,20,,0,2.0243942,38,,,,,,,,0,,oracle/screenshots/V29.png,guc = alfa
+V30,criterion,2,0.5,,0.8,,30,45,,2.1213203,1.2806903,73,,,,,,0.2043565,,,,oracle/screenshots/V30.png,cift kuyruk criterion
+V31,compromise,2,0.5,,,,30,45,4,2.1213203,1.7340951,73,,,,,0.6515101,0.0871225,0.3484899,,,oracle/screenshots/V31.png,cift kuyruk compromise
+V32,a-priori,2,0.5,0.05,0.8,0,,,,,,,,,,,,,,,"Tamam | The allocation ratio falls outside
+the admissible range (0.01, 100).",oracle/screenshots/V32.png,gecersiz: oran 0
+V33,post-hoc,2,0.5,0.05,,,1,10,,0.4767313,2.2621572,9,,,,,0.0712405,,,,,oracle/screenshots/V33.png,gecersiz: n1 = 1
+V34,a-priori,2,10,0.05,0.8,0.25,,,,8.6602540,4.3026527,2,3,1,4,0.9754623,,,,,,oracle/screenshots/V34.png,alt sinir: buyuk etki ve oran < 1
+V35,a-priori,2,10,0.05,0.8,4,,,,8.6602540,4.3026527,2,1,3,4,0.9754623,,,,,,oracle/screenshots/V35.png,alt sinir: buyuk etki ve oran > 1
+V36,a-priori,2,10,0.05,0.8,0.1,,,,0,4.3026527,2,4,0,4,0.0500000,,,,,,oracle/screenshots/V36.png,alt sinir: kucuk grup 2'den az olabilir mi?
+V37,a-priori,2,0.5,0.05,0.8,0.01,,,,2.8142761,1.9607047,3204,3174,32,3206,0.8033011,,,,,,oracle/screenshots/V37.png,oran alt sinir (0.01)
+V38,a-priori,2,0.5,0.05,0.8,100,,,,2.8142761,1.9607047,3204,32,3174,3206,0.8033011,,,,,,oracle/screenshots/V38.png,oran ust sinir (100)
+V39,a-priori,2,0.5,0.05,0.8,0.009,,,,,,,,,,,,,,,"Tamam | The allocation ratio falls outside
+the admissible range (0.01, 100).",oracle/screenshots/V39.png,gecersiz: oran < 0.01
+V40,a-priori,2,0.5,0.05,0.8,100.5,,,,,,,,,,,,,,,"Tamam | The allocation ratio falls outside
+the admissible range (0.01, 100).",oracle/screenshots/V40.png,gecersiz: oran > 100
+V41,sensitivity,2,,0.05,0.04,,20,20,,,,,,,,,,,,,Tamam | Power must be greater than or equal to alpha.,oracle/screenshots/V41.png,guc < alfa (sensitivity)
+V42,a-priori,1,0.5,0.05,0.8,0.33,,,,2.4936486,1.6564793,132,101,33,134,0.7984175,,,,,,oracle/screenshots/V42.png,yarim yuvarlama siniri

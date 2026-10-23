@@ -25,6 +25,10 @@ dev = [
     "mcp",
     "statsmodels>=0.15.0",
 ]
+oracle = [
+    "pillow>=12.3.0",
+    "pywinauto>=0.6.9",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gpower_clone"]
