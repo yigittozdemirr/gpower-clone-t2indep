@@ -15,9 +15,9 @@
 | 2 · Yazım | 284 752 | 61 | 29 dk 53 s | Alt ajan bitiş bildirimi (`subagent_tokens`, `tool_uses`, `duration_ms`) |
 | 2b · Yazım, SPEC revizyonu 1 | 152 545 | 28 | 8 dk 41 s | Alt ajan bitiş bildirimi |
 | 2b · Yazım, SPEC revizyonu 2 | 186 733 | 40 | 13 dk 54 s | Alt ajan bitiş bildirimi (aynı oturum, kümülatif) |
-| 1 · İnceleme (ilk yarı) | ~274 000 bağlam penceresi (mesajlar 198 k) | — | ~2 saat | Uygulamanın bağlam ölçümü; REA aşamasından sonra güncellenecek |
+| 1 · İnceleme (tamamı) | ~679 000 bağlam penceresi (mesajlar ~592 k) | yüzlerce | ~4,5 saat (iki gün içinde, bir kullanım limiti kesintisiyle) | Uygulamanın bağlam ölçümü (teslim anı) |
 
-- Abonelik: Claude **Pro**. İlk yarının sonunda 5 saatlik kullanım sınırının %77'si dolmuştu. Ajanlı geliştirmede asıl darboğaz kullanım sınırı oluyor.
+- Abonelik: Claude **Pro**. Çalışma sırasında 5 saatlik kullanım sınırı bir kez doldu ve iş yarıda kesildi; haftalık sınırın ~%25'i kullanıldı. Ajanlı geliştirmede asıl darboğaz kullanım sınırı oluyor.
 - Maliyet: Pro abonelik sabit ücretli olduğu için bu çalışmanın ek bir para maliyeti yok. API ile yapılsaydı maliyeti token sayısı × güncel liste fiyatı ile hesaplanmalı. Fiyatı ezberden yazmıyoruz.
 - Ürün ajanının soru başına token ve süre ölçümü ücretli API gerektirdiği için yapılmadı; düzenek `eval/run_eval.py`'de hazır.
 
