@@ -1,7 +1,7 @@
 id,mode,tails,d,alpha,power,ratio,n1,n2,beta_alpha_ratio,gp_ncp,gp_critical_t,gp_df,gp_n1,gp_n2,gp_n_total,gp_actual_power,gp_power,gp_alpha,gp_beta,gp_d,gp_error,screenshot,note
-V01,a-priori,1,0.5,0.05,0.95,1,,,,,,,,,,,,,,,sonuç yok,oracle/screenshots/V01.png,acik vektor (CONTRACT ornegi)
+V01,a-priori,1,0.5,0.05,0.95,1,,,,3.3166248,1.6536580,174,88,88,176,0.9514254,,,,,,oracle/screenshots/V01.png,acik vektor (CONTRACT ornegi)
 V02,a-priori,2,0.5,0.05,0.95,1,,,,3.6228442,1.9714347,208,105,105,210,0.9501287,,,,,,oracle/screenshots/V02.png,odev ek dokumani ornegi
-V03,a-priori,2,0.5,0.05,0.8,1,,,,,,,,,,,,,,,sonuç yok,oracle/screenshots/V03.png,klasik d=0.5 guc .80
+V03,a-priori,2,0.5,0.05,0.8,1,,,,2.8284271,1.9789706,126,64,64,128,0.8014596,,,,,,oracle/screenshots/V03.png,klasik d=0.5 guc .80
 V04,a-priori,1,0.5,0.05,0.95,3,,,,3.3212924,1.6514481,232,59,175,234,0.9522160,,,,,,oracle/screenshots/V04.png,esit olmayan oran: n2 = 3*n1 mi?
 V05,a-priori,2,0.5,0.05,0.8,1.5,,,,2.8389613,1.9780988,132,54,80,134,0.8046333,,,,,,oracle/screenshots/V05.png,esit olmayan oran
 V06,a-priori,2,0.8,0.05,0.8,0.25,,,,2.8621670,1.9908471,78,64,16,80,0.8069741,,,,,,oracle/screenshots/V06.png,esit olmayan oran (n2 kucuk)
@@ -44,3 +44,7 @@ V40,a-priori,2,0.5,0.05,0.8,100.5,,,,,,,,,,,,,,,"Tamam | The allocation ratio fa
 the admissible range (0.01, 100).",oracle/screenshots/V40.png,gecersiz: oran > 100
 V41,sensitivity,2,,0.05,0.04,,20,20,,,,,,,,,,,,,Tamam | Power must be greater than or equal to alpha.,oracle/screenshots/V41.png,guc < alfa (sensitivity)
 V42,a-priori,1,0.5,0.05,0.8,0.33,,,,2.4936486,1.6564793,132,101,33,134,0.7984175,,,,,,oracle/screenshots/V42.png,yarim yuvarlama siniri
+V43,a-priori,2,0.0001,0.05,0.95,1,,,,3.6048180,1.9599640,5197885006,2598942504,2598942504,5197885008,0.9500000,,,,,,oracle/screenshots/V43.png,cok kucuk etki (ust sinir yok)
+V44,a-priori,2,0.00001,0.05,0.95,1,,,,3.6048996,1.9599640,519812041144,259906020573,259906020573,519812041146,0.9500402,,,,,,oracle/screenshots/V44.png,a-priori d alt siniri (kabul)
+V45,a-priori,2,0.0000000001,0.05,0.95,1,,,,,,,,,,,,,,,"Tamam | In an a priori analysis, the absolute value of the
+effect size must be greater than 0.00001.",oracle/screenshots/V45.png,a-priori d alt siniri (red)

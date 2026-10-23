@@ -41,3 +41,6 @@ V39,a-priori,2,0.5,0.05,0.8,0.009,,,,gecersiz: oran < 0.01
 V40,a-priori,2,0.5,0.05,0.8,100.5,,,,gecersiz: oran > 100
 V41,sensitivity,2,,0.05,0.04,,20,20,,guc < alfa (sensitivity)
 V42,a-priori,1,0.5,0.05,0.8,0.33,,,,yarim yuvarlama siniri
+V43,a-priori,2,0.0001,0.05,0.95,1,,,,cok kucuk etki (ust sinir yok)
+V44,a-priori,2,0.00001,0.05,0.95,1,,,,a-priori d alt siniri (kabul)
+V45,a-priori,2,0.0000000001,0.05,0.95,1,,,,a-priori d alt siniri (red)

@@ -13,6 +13,8 @@
 | Oturum | Token | Araç çağrısı | Süre | Kaynak |
 |---|---|---|---|---|
 | 2 · Yazım | 284 752 | 61 | 29 dk 53 s | Alt ajan bitiş bildirimi (`subagent_tokens`, `tool_uses`, `duration_ms`) |
+| 2b · Yazım, SPEC revizyonu 1 | 152 545 | 28 | 8 dk 41 s | Alt ajan bitiş bildirimi |
+| 2b · Yazım, SPEC revizyonu 2 | 186 733 | 40 | 13 dk 54 s | Alt ajan bitiş bildirimi (aynı oturum, kümülatif) |
 | 1 · İnceleme (ilk yarı) | ~274 000 bağlam penceresi (mesajlar 198 k) | — | ~2 saat | Uygulamanın bağlam ölçümü; REA aşamasından sonra güncellenecek |
 
 - Abonelik: Claude **Pro**. İlk yarının sonunda 5 saatlik kullanım sınırının %77'si dolmuştu. Ajanlı geliştirmede asıl darboğaz kullanım sınırı oluyor.
@@ -26,7 +28,9 @@
 3. Yazım: 1 tur, 61 araç çağrısı, 24 SPEC belirsizliği raporlandı (docs/IMPLEMENTATION_NOTES.md §4).
 4. Doğrulama: 419 test; inceleme oturumunun 16 deney tahmini motorla birebir; ek yönergedeki örnek (105/105) birebir.
 5. Yönerge güncellemesi: `[REA]` yeniden yorumlandı (HALLUCINATIONS H-1) → teslim yapısı yeniden düzenlendi, Gherkin, 600 statsmodels vektörü, S257 kâhin hatası bulundu.
-6. REA + Ghidra ile binary incelemesi → LEDGER bölüm C. _(sürüyor)_
+6. G*Power arayüzü otomasyonu (pywinauto): 45 + 120 vektör ~4 dakikada toplandı → "her grup ayrı yukarı" kuralı çürütüldü (68/140), "çift toplam" kuralı bulundu (140/140).
+7. REA + Ghidra: 8 [REA] bulgusu (LEDGER R-01…R-08), ~35 araç çağrısı; kural binary'de birebir doğrulandı ve iki yeni kural bulundu (10 basamaklı yuvarlama, a-priori d ≥ 1e-5).
+8. Yazım oturumu SPEC farkıyla iki kez yeniden çalıştırıldı; sonuç 1304 test, G*Power ile açıklanmamış fark 0.
 
 ## Neyi farklı yapardık
 

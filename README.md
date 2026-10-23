@@ -43,7 +43,7 @@ uv sync --all-extras --group dev
 uv run pytest -q
 ```
 
-1050'den fazla test: açık vektörler, SPEC'teki Gherkin kabul kriterleri, SciPy'ye karşı sayısal doğruluk, değişmezler, girdi doğrulama, CLI, MCP ≡ CLI eşdeğerliği, ajan döngüsü ve 600 statsmodels vektörüyle diferansiyel test. Uyum raporu: [tests/AGREEMENT_REPORT.md](tests/AGREEMENT_REPORT.md) (`uv run python tools/differential_report.py`).
+1304 test: açık vektörler, SPEC'teki Gherkin kabul kriterleri, SciPy'ye karşı sayısal doğruluk, değişmezler, girdi doğrulama, CLI, MCP ≡ CLI eşdeğerliği, ajan döngüsü ve diferansiyel test. Diferansiyel test **165 G*Power vektörü** (arayüzden otomatik toplandı, 45'i ekran görüntülü) ve 600 statsmodels vektörü kullanıyor: G*Power ile tam eşleşme 162/165, a-priori N (kapı) 147/149 = %98,7, açıklanmamış fark 0. Uyum raporu: [tests/AGREEMENT_REPORT.md](tests/AGREEMENT_REPORT.md) (`uv run python tools/differential_report.py`).
 
 ## MCP sunucusu
 

@@ -42,7 +42,7 @@ Bu formüller açık vektörlerin beşini de 1e-9'dan küçük farkla tutturuyor
   4. Merkezî t ters CDF: Newton + ikiye bölme güvenceli kök bulma; göreli hata ≤ 1e-13.
   5. Merkezî olmayan t CDF: Lenth (1989) AS 243 algoritması (Poisson ağırlıklı beta serisi, hem ileri hem geri yönde toplanır), hata eşiği ≤ 1e-13. Çok büyük `ncp` (≈ 37'nin üstü) veya seri yakınsamadığında sağlam bir geri dönüş gerekir (ör. `ncp` çok büyükse güç 1'e, gücün küçük tarafındaki kuyruk 0'a sıkıştırılır; normal yaklaşım yalnızca 1e-12'den küçük olasılıklar için kabul edilir).
 - **Doğruluk hedefi:** Her çıktı ondalığı bağımsız bir kâhine (SciPy `stats.t`, `stats.nct`; yalnızca test bağımlılığı) karşı mutlak ≤ 1e-9. Sözleşme toleransı 1e-6; 1000 kat pay bırakıyoruz.
-- Sürekli `df` (tam sayı olmayan) desteklenmelidir; a-priori çözümü sürekli `n1` üzerinde çalışır (Bölüm 3.1).
+- Sürekli `df` (tam sayı olmayan) desteklenmelidir; a-priori çözümü sürekli toplam `N` üzerinde çalışır (Bölüm 3.1).
 
 ---
 
@@ -60,6 +60,7 @@ Kontrol sırası sabittir; ilk hatada durulur `[DOK: CONTRACT]` + takım kararı
 8. Aralık (CONTRACT §5) → `OUT_OF_RANGE`: `tails` ∈ {1,2}; `0 < alpha < 1`; `0 < power < 1`; `beta_alpha_ratio > 0`; `d > 0`; `ratio > 0`; `n1, n2 ≥ 2`.
    - Ek olarak `ratio` **0.01 ≤ ratio ≤ 100** olmalı (uçlar dahil); dışındaysa `OUT_OF_RANGE`, field `ratio`, mesaj "Allocation ratio kabul edilebilir aralığın (0.01, 100) dışında". `[AJAN, G*Power arayüzüyle doğrulandı: oracle V32, V37–V40 — 0.01 ve 100 kabul, 0, 0.009 ve 100.5 için G*Power "The allocation ratio falls outside the admissible range (0.01, 100)." diyor]`
    - Not: G*Power post-hoc'ta `n1 = 1`'i kabul ediyor (oracle V33), ama CONTRACT §5 `n1, n2 ≥ 2` diyor; **sözleşme önceliklidir**, `OUT_OF_RANGE`.
+   - Yalnızca `a-priori` modunda: `d < 0.00001` ise `OUT_OF_RANGE`, field `d`, mesaj "A-priori analizde etki büyüklüğü 0.00001'den küçük olamaz". `d = 0.00001` **kabul edilir**. `[REA: 0x4d9260'ta `1e-5 > |d|` karşılaştırması, sabit 0x5c7ed8 = 1e-5, dize 0x5cb220 "…effect size must be greater than 0.00001."; GUI: d 1e-10 reddedildi, d 1e-5 hesaplandı]`
 9. Tutarlılık → `INCONSISTENT`:
    - `a-priori` ve `sensitivity`: `power < alpha` (**kesin küçük**) ise hata, field `power`, mesaj "Power, alpha değerinden büyük olmalı". `power = alpha` hata **değildir**. `[AJAN, G*Power arayüzüyle doğrulandı: oracle V20, V41 → "Power must be greater than or equal to alpha."; V21, V29 → eşitlikte sonuç üretiyor]`
 10. Hesap çözüm üretemezse → `NO_SOLUTION` (Bölüm 3'teki sınırlar).
@@ -78,12 +79,13 @@ Her modun girdi/çıktı alanları CONTRACT §4.1'deki tablodadır. Aşağıda y
 
 Girdi: `tails, d, alpha, power, ratio` (`ratio` = N2/N1).
 
-**Dağıtım kuralı — "çift toplam, yuvarlanarak bölünür"** `[AJAN, G*Power arayüzüyle doğrulandı: 140/140 a-priori vektör (oracle V01–V42 + 120 rastgele); binary kanıtı LEDGER H-01'de bekleniyor]`:
+**Dağıtım kuralı — "çift toplam, yuvarlanarak bölünür"** `[REA: LEDGER R-03…R-07]` `[GUI: 140/140 a-priori vektör (oracle V01–V42 + 120 rastgele)]`:
 
 1. Toplam `N` **sürekli** bir değişken kabul edilir; gruplar sürekli olarak `n1 = N/(1+ratio)`, `n2 = ratio·N/(1+ratio)`, `df = N − 2`.
-2. `power(N) = hedef power` denkleminin kökü `N*` bulunur, arama alanı `N > 2` (güç N'de monoton artan; `N → 2⁺` iken güç → alpha).
-3. Toplam **çift sayıya** yukarı yuvarlanır: `N = 2·⌈N*/2⌉`. Kayan nokta gürültüsüne karşı: `N = 2·⌈N*/2 − 1e-9⌉`. Sonuç hiçbir zaman 4'ten küçük olmaz.
-4. Bölme: `n1 = ⌊N/(1+ratio) + 0.5⌋` (**yarım yukarı** yuvarlama; bankacı yuvarlaması DEĞİL: ratio = 3, N = 234 → 58.5 → **59**), `n2 = N − n1`.
+2. `power(N) = hedef power` denkleminin kökü `N*` bulunur (güç N'de monoton artan). G*Power arama aralığını [3, 100] ile başlatır, gerekirse üst ucu 1.6 ile çarparak sınırsız genişletir, sonra Brent yöntemiyle (makine hassasiyetine kadar, en fazla 300 iterasyon) kökü bulur. `[REA: 0x4ac4c0 → 0x4962d0, 0x4f9bb0]`
+3. Toplam **çift sayıya** yukarı yuvarlanır, önce 10 basamağa yuvarlanarak: `x = N*/2`, `N = 2·⌈⌊x·10¹⁰ + 0.5⌋ / 10¹⁰⌉`. `[REA: 0x4d64c0 = 2·f(N*/2), f = 0x496a20]` Kök 3'ün altındaysa (güç zaten N = 3'te hedefe ulaşıyorsa) `N = 4`. Sonuç hiçbir zaman 4'ten küçük olmaz.
+4. Bölme: `n1 = ⌊N/(1+ratio) + 0.5⌋` (**yarım yukarı** yuvarlama; bankacı yuvarlaması DEĞİL: ratio = 3, N = 234 → 58.5 → **59**), `n2 = ⌈N − n1⌉ = N − n1`. `[REA: 0x4d9d53 → 0x5727d0 (floor(x·10^k + 0.5)/10^k, k = 0); 0x4d9d86 ceil]`
+4b. `|ratio − 1| < 1e-8` iken `n1 ≠ n2` ise küçük gruba 1 eklenir `[REA: 0x4d9dc5–0x4d9e01, sabit 0x5c4198 = 1e-8]`. N çift olduğu için bu adım pratikte hiçbir şeyi değiştirmez; yine de uygulanır.
 5. `ncp`, `critical_t`, `df` ve `actual_power` bu **tam sayı** `n1, n2` ile yeniden hesaplanır. `n_total = N`.
 6. **Sonuç hedefin altında kalabilir.** Bölme yuvarlaması yüzünden `actual_power < power` olabilir; G*Power bunu düzeltmez ve biz de düzeltmeyiz (oracle V07: 404/282, 0.8998856 < 0.90; V10: 663/33, 0.7994111 < 0.80).
 7. **Dejenere sonuç.** Çok büyük etki ve küçük oranda bir grup 1 ya da 0 olabilir (oracle V34: 3/1; V35: 1/3; V36: ratio 0.1, d 10 → **4/0**, ncp 0, df 2, güç = alpha). G*Power bunu üretiyor; biz de aynısını üretiriz. `n1` ya da `n2` 2'den küçükse çıktıya fazladan bir `warning` alanı (metin) eklenir: "Gruplardan biri 2'den küçük; sonuç G*Power ile uyum için üretildi, klinik olarak kullanılamaz." `n2 = 0` iken `ncp = 0` (formüldeki `n1·n2/(n1+n2)` sıfır), `df = n1 − 2`.
@@ -98,10 +100,10 @@ Girdi: `tails, d, alpha, power, ratio` (`ratio` = N2/N1).
 | 2 kuyruk, d .3, α .01, güç .90, ratio 0.7 | 685.89 | 686 | 404 / 282 |
 | 2 kuyruk, d .5, α .05, güç .80, ratio 0.05 | 694.20 | 696 | 663 / 33 |
 
-**Kök arama:**
-- `power(N = 4) ≥ hedef` ise `N = 4` (kök (2, 4] aralığında, çift yuvarlama 4 verir). Böylece df → 0 bölgesindeki sayısal sorunlardan kaçınılır.
-- Aksi halde `N = 4`'ten başlayıp ikiye katlayarak `power ≥ hedef` olan ilk üst uç; sonra Brent ya da güvenceli ikiye bölme, mutlak tolerans 1e-9 (göreli 1e-14).
-- **Üst sınır yok gibi davranılır:** G*Power d = 0.001 için 25 989 420 / 25 989 420 hesaplıyor (oracle V16). Yalnızca `N* > 1e13` olursa `NO_SOLUTION` `[AJAN: sınır bilinmiyor]`.
+**Kök arama (bizim uygulamamız; sonuç G*Power'ınkiyle aynı):**
+- `power(N = 4) ≥ hedef` ise `N = 4` (kök ≤ 4 ise çift yuvarlama da 4 verir). Böylece df → 0 bölgesindeki sayısal sorunlardan kaçınılır.
+- Aksi halde `N = 4`'ten başlayıp katlayarak `power ≥ hedef` olan ilk üst uç; sonra Brent, mutlak tolerans 1e-12 ve göreli 1e-15 (G*Power makine hassasiyetine kadar iniyor; adım 3'teki 10 basamak yuvarlaması için kökün en az bu kadar hassas olması gerekir).
+- **Üst sınır yok** `[REA: 0x4962d0 aralığı 1.6 çarpanıyla sınırsız genişletir]`. G*Power d = 0.001 için 25 989 420 / 25 989 420, d = 0.0001 için 2 598 942 504 / 2 598 942 504, d = 0.00001 için 259 906 020 573 / 259 906 020 573 hesaplıyor (oracle V16, V43, V44). a-priori'de `NO_SOLUTION` yalnızca sayısal taşma (sonsuz/NaN) olursa döner.
 
 ### 3.2 `post-hoc` — ulaşılan güç
 
@@ -255,6 +257,7 @@ Aşağıdaki `gherkin` bloklarındaki **Örnekler** tabloları `tests/test_spec_
       | --mode a-priori --tails 2 --d 10 --alpha 0.05 --power 0.8 --ratio 0.25 | {"n1": 3, "n2": 1, "df": 2, "actual_power": 0.9754623} |
       | --mode a-priori --tails 2 --d 10 --alpha 0.05 --power 0.8 --ratio 0.1 | {"n1": 4, "n2": 0, "df": 2, "ncp": 0, "actual_power": 0.05} |
       | --mode a-priori --tails 2 --d 0.001 --alpha 0.05 --power 0.95 --ratio 1 | {"n1": 25989420, "n2": 25989420, "n_total": 51978840} |
+      | --mode a-priori --tails 2 --d 0.00001 --alpha 0.05 --power 0.95 --ratio 1 | {} |
       | --mode a-priori --tails 1 --d 0.5 --alpha 0.05 --power 0.05 --ratio 1 | {"n1": 2, "n2": 2, "actual_power": 0.0994117} |
       | --mode sensitivity --tails 2 --alpha 0.05 --power 0.05 --n1 20 --n2 20 | {"d": 0, "ncp": 0, "df": 38} |
       | --mode post-hoc --tails 2 --d 0.1 --alpha 0.05 --n1 10 --n2 10 | {"power": 0.0551613} |
@@ -286,7 +289,8 @@ Aşağıdaki `gherkin` bloklarındaki **Örnekler** tabloları `tests/test_spec_
       | --mode sensitivity --tails 2 --alpha 0.05 --power 0.04 --n1 20 --n2 20 | {"code": "INCONSISTENT", "field": "power"} | 2 |
       | --mode a-priori --tails 2 --d 0.5 --alpha 0.05 --power 0.8 --ratio 0.009 | {"code": "OUT_OF_RANGE", "field": "ratio"} | 2 |
       | --mode a-priori --tails 2 --d 0.5 --alpha 0.05 --power 0.8 --ratio 100.5 | {"code": "OUT_OF_RANGE", "field": "ratio"} | 2 |
-      | --mode a-priori --tails 2 --d 0.0000000001 --alpha 0.05 --power 0.95 --ratio 1 | {"code": "NO_SOLUTION"} | 1 |
+      | --mode a-priori --tails 2 --d 0.0000000001 --alpha 0.05 --power 0.95 --ratio 1 | {"code": "OUT_OF_RANGE", "field": "d"} | 2 |
+      | --mode post-hoc --tails 2 --d 0.0000000001 --alpha 0.05 --n1 20 --n2 20 | {"df": 38} | 0 |
       | --mode bogus | {"code": "UNSUPPORTED", "field": "mode"} | 2 |
 ```
 

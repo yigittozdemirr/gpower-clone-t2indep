@@ -152,6 +152,8 @@ def main() -> int:
     raw, rows = [], []
     for row in todo:
         reading = gp.run(row)
+        if not reading["dialog"] and all(v in ("", "?") for v in reading["outputs"].values()):
+            reading = gp.run(row)  # occasionally the first Calculate after start-up is not registered
         raw.append(reading)
         outs = reading["outputs"]
         failed = reading["dialog"] or all(v in ("", "?") for v in outs.values())

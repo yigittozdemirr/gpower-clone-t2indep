@@ -50,7 +50,7 @@ def test_gherkin_example(feature, row):
     out = json.loads(lines[0])
     expected = json.loads(row["beklenen"])
     assert code == int(row.get("çıkış", "0")), (feature, out)
-    if "çıkış" in row:
+    if row.get("çıkış", "0") != "0":
         assert "error" in out, out
     for key, exp in expected.items():
         assert key in out, (feature, key, out)

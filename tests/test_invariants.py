@@ -48,23 +48,33 @@ def _posthoc(tails, d, alpha, n1, n2) -> float:
                 "n1": n1, "n2": n2})["power"]
 
 
+def _cont_power(c: dict, n_tot: float) -> float:
+    """Power on the continuous ratio-preserving path at total N (SPEC 3.1 step 1)."""
+    r = c["ratio"]
+    return engine.power_of(c["tails"], c["d"], c["alpha"], n_tot / (1 + r), r * n_tot / (1 + r))
+
+
 @pytest.mark.parametrize("c", GRID)
 def test_apriori_posthoc_and_minimality(c):
     a = _apriori(c)
+    # SPEC 8: n_total even and >= 4, split rule, integer df
+    assert a["n_total"] % 2 == 0 and a["n_total"] >= 4
     assert a["n_total"] == a["n1"] + a["n2"]
     assert a["df"] == a["n_total"] - 2
-    assert a["n1"] >= 2 and a["n2"] >= 2
-    # post-hoc on the a-priori sample sizes reproduces actual_power, which reaches the target
-    ph = _posthoc(c["tails"], c["d"], c["alpha"], a["n1"], a["n2"])
-    assert ph == a["actual_power"]
-    assert a["actual_power"] >= c["power"] - 1e-9
-    # minimality: one step below n1 on the ratio-preserving continuous path misses the target
-    n1_lo = max(2.0, 2.0 / c["ratio"])
-    m = a["n1"] - 1
-    if m >= n1_lo:
-        assert engine.power_of(c["tails"], c["d"], c["alpha"], m, c["ratio"] * m) < c["power"]
-    # per-group rounding: n2 never exceeds ceil(ratio * n1)
-    assert a["n2"] <= math.ceil(c["ratio"] * a["n1"] - 1e-9)
+    assert a["n1"] == math.floor(a["n_total"] / (1 + c["ratio"]) + 0.5)
+    if a["n1"] < 2 or a["n2"] < 2:
+        assert "warning" in a
+    else:
+        assert "warning" not in a
+        # post-hoc on the a-priori sample sizes reproduces actual_power byte for byte
+        # (actual_power >= target is NOT an invariant: split rounding, SPEC 3.1 step 6)
+        ph = _posthoc(c["tails"], c["d"], c["alpha"], a["n1"], a["n2"])
+        assert ph == a["actual_power"]
+    # the even total reaches the target on the continuous path ...
+    assert _cont_power(c, a["n_total"]) >= c["power"] - 1e-12
+    # ... and minimality: the previous even total does not (only when n_total > 4)
+    if a["n_total"] > 4:
+        assert _cont_power(c, a["n_total"] - 2) < c["power"]
 
 
 @pytest.mark.parametrize("c", GRID[:40])
@@ -72,7 +82,12 @@ def test_criterion_alpha_gives_target_power(c):
     a = _apriori(c)
     cr = _ok({"test": T2, "mode": "criterion", "tails": c["tails"], "d": c["d"], "power": c["power"],
               "n1": a["n1"], "n2": a["n2"]})
-    assert 0.0 < cr["alpha"] <= c["alpha"] * (1 + 1e-9)
+    assert 0.0 < cr["alpha"] < 1.0
+    # alpha <= input alpha exactly when the integer split reached the target
+    if a["actual_power"] >= c["power"]:
+        assert cr["alpha"] <= c["alpha"] * (1 + 1e-9)
+    else:
+        assert cr["alpha"] >= c["alpha"] * (1 - 1e-9)
     assert abs(_posthoc(c["tails"], c["d"], cr["alpha"], a["n1"], a["n2"]) - c["power"]) <= 1e-9
 
 
@@ -81,7 +96,11 @@ def test_sensitivity_d_gives_target_power(c):
     a = _apriori(c)
     se = _ok({"test": T2, "mode": "sensitivity", "tails": c["tails"], "alpha": c["alpha"],
               "power": c["power"], "n1": a["n1"], "n2": a["n2"]})
-    assert 0.0 < se["d"] <= c["d"] * (1 + 1e-9)
+    assert se["d"] > 0.0
+    if a["actual_power"] >= c["power"]:
+        assert se["d"] <= c["d"] * (1 + 1e-9)
+    else:
+        assert se["d"] >= c["d"] * (1 - 1e-9)
     assert abs(_posthoc(c["tails"], se["d"], c["alpha"], a["n1"], a["n2"]) - c["power"]) <= 1e-9
 
 
@@ -119,12 +138,57 @@ def test_determinism(c):
         assert engine.to_json(engine.run(dict(params))[0]) == first
 
 
-def test_ratio_three_rounds_each_group_separately():
-    # SPEC 3.1: n2 = ceil(ratio * n1*), not ratio * ceil(n1*)
-    found = False
-    for d in [0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
-        a = _apriori({"tails": 2, "d": d, "alpha": 0.05, "power": 0.8, "ratio": 3})
-        assert a["n2"] <= 3 * a["n1"]
-        if a["n2"] != 3 * a["n1"]:
-            found = True
-    assert found
+def test_ratio_three_split_is_half_up():
+    # SPEC 3.1: N* = 232.24 -> N = 234, n1 = floor(234/4 + 0.5) = floor(59.0) = 59 (58.5 rounds UP)
+    a = _apriori({"tails": 1, "d": 0.5, "alpha": 0.05, "power": 0.95, "ratio": 3})
+    assert (a["n1"], a["n2"], a["n_total"]) == (59, 175, 234)
+
+
+@pytest.mark.parametrize("c", GRID[:20])
+def test_ratio_one_gives_equal_groups(c):
+    a = _apriori({**c, "ratio": 1})
+    assert a["n1"] == a["n2"] and a["n_total"] == 2 * a["n1"]
+
+
+@pytest.mark.parametrize("c", GRID[:20])
+def test_ratio_reciprocal_mirrors_groups(c):
+    # power depends on n1*n2/(n1+n2) only, so ratio and 1/ratio share N*; the split mirrors
+    # unless N/(1+ratio) sits exactly on .5 (half-up is not symmetric)
+    a = _apriori(c)
+    b = _apriori({**c, "ratio": 1 / c["ratio"]})
+    assert a["n_total"] == b["n_total"]
+    x = a["n_total"] / (1 + c["ratio"])
+    if abs(x - math.floor(x) - 0.5) > 1e-6:
+        assert (a["n1"], a["n2"]) == (b["n2"], b["n1"])
+
+
+def test_actual_power_may_be_below_target():
+    # SPEC 3.1 step 6 (G*Power V07): 404/282, actual power 0.8998856 < 0.90 is kept
+    a = _apriori({"tails": 2, "d": 0.3, "alpha": 0.01, "power": 0.9, "ratio": 0.7})
+    assert (a["n1"], a["n2"], a["n_total"]) == (404, 282, 686)
+    assert a["actual_power"] < 0.9
+
+
+def test_n_total_four_shortcut_and_power_equal_alpha():
+    # power(N = 4) >= target -> N = 4 (power = alpha is valid input, SPEC 2.9)
+    a = _apriori({"tails": 1, "d": 0.5, "alpha": 0.05, "power": 0.05, "ratio": 1})
+    assert (a["n1"], a["n2"], a["n_total"], a["df"]) == (2, 2, 4, 2)
+    assert "warning" not in a
+
+
+@pytest.mark.parametrize("ratio,n1,n2", [(0.25, 3, 1), (0.1, 4, 0), (4, 1, 3), (10, 0, 4)])
+def test_degenerate_groups_get_warning(ratio, n1, n2):
+    a = _apriori({"tails": 2, "d": 10, "alpha": 0.05, "power": 0.8, "ratio": ratio})
+    assert (a["n1"], a["n2"], a["n_total"], a["df"]) == (n1, n2, 4, 2)
+    assert a["warning"] == engine.DEGENERATE_WARNING
+    assert list(a) == ["ncp", "critical_t", "df", "n1", "n2", "n_total", "actual_power", "warning"]
+    if 0 in (n1, n2):
+        assert a["ncp"] == 0.0
+        assert abs(a["actual_power"] - 0.05) <= 1e-12
+
+
+def test_sensitivity_power_equal_alpha_gives_zero_effect():
+    for tails in (1, 2):
+        se = _ok({"test": T2, "mode": "sensitivity", "tails": tails, "alpha": 0.05, "power": 0.05,
+                  "n1": 20, "n2": 20})
+        assert se["d"] == 0.0 and se["ncp"] == 0.0 and se["df"] == 38

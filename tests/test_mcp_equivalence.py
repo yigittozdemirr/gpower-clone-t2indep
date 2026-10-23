@@ -24,7 +24,11 @@ ERROR_AND_EXTRA_INPUTS = [
     {"test": T2, "mode": "power"},
     {"test": "t-paired", "mode": "a-priori"},
     {"mode": "a-priori"},
-    {"test": T2, "mode": "a-priori", "tails": 2, "d": 0.0005, "alpha": 0.05, "power": 0.8, "ratio": 1},
+    {"test": T2, "mode": "a-priori", "tails": 2, "d": 1e-10, "alpha": 0.05, "power": 0.8, "ratio": 1},
+    {"test": T2, "mode": "a-priori", "tails": 2, "d": 0.001, "alpha": 0.05, "power": 0.95, "ratio": 1},
+    {"test": T2, "mode": "a-priori", "tails": 2, "d": 10, "alpha": 0.05, "power": 0.8, "ratio": 0.1},
+    {"test": T2, "mode": "a-priori", "tails": 2, "d": 0.5, "alpha": 0.05, "power": 0.8, "ratio": 100.5},
+    {"test": T2, "mode": "sensitivity", "tails": 2, "alpha": 0.05, "power": 0.05, "n1": 20, "n2": 20},
     {"test": T2, "mode": "a-priori", "tails": 2, "d": 0.3, "alpha": 0.05, "power": 0.8, "ratio": 2.5},
     {"test": T2, "mode": "sensitivity", "tails": 2, "alpha": 0.05, "power": 0.8, "n1": 17, "n2": 23},
 ]

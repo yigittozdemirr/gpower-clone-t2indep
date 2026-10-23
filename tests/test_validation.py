@@ -161,9 +161,19 @@ def test_out_of_range_post_hoc(field, value):
     err(with_(POST, **{field: value}), "OUT_OF_RANGE", field)
 
 
-@pytest.mark.parametrize("field,value", [("power", "0"), ("power", "1"), ("ratio", "0"), ("ratio", "-2")])
+@pytest.mark.parametrize("field,value", [("power", "0"), ("power", "1"), ("ratio", "0"), ("ratio", "-2"),
+                                         ("ratio", "0.009"), ("ratio", "0.00999999"), ("ratio", "100.5"),
+                                         ("ratio", "100.0000001"), ("ratio", "1e9")])
 def test_out_of_range_a_priori(field, value):
-    err(with_(APRI, **{field: value}), "OUT_OF_RANGE", field)
+    out = err(with_(APRI, **{field: value}), "OUT_OF_RANGE", field)
+    if field == "ratio":
+        assert out["error"].endswith("Allocation ratio kabul edilebilir aralığın (0.01, 100) dışında")
+
+
+@pytest.mark.parametrize("ratio", ["0.01", "100", "1e-2", "1e2", 0.01, 100])
+def test_ratio_bounds_are_inclusive(ratio):
+    out, code = engine.run(with_(APRI, ratio=ratio))
+    assert code == 0, out
 
 
 def test_out_of_range_beta_alpha_ratio():
@@ -178,10 +188,21 @@ def test_range_reported_in_table_order():
 
 # --- INCONSISTENT (step 9) ------------------------------------------------------------------
 
-@pytest.mark.parametrize("power,alpha", [("0.05", "0.05"), ("0.04", "0.05"), ("0.1", "0.5")])
-def test_power_not_above_alpha_a_priori(power, alpha):
+@pytest.mark.parametrize("power,alpha", [("0.04", "0.05"), ("0.1", "0.5"), ("0.0499999", "0.05")])
+def test_power_below_alpha_a_priori(power, alpha):
     out = err(with_(APRI, power=power, alpha=alpha), "INCONSISTENT", "power")
     assert out["error"] == "Power, alpha değerinden büyük olmalı"
+
+
+@pytest.mark.parametrize("tails", ["1", "2"])
+def test_power_equal_alpha_is_valid(tails):
+    # SPEC 2.9: only power < alpha (strict) is INCONSISTENT
+    out, code = engine.run(with_(APRI, power="0.05", alpha="0.05", tails=tails))
+    assert code == 0 and out["n_total"] == 4, out
+    p = {"test": T2, "mode": "sensitivity", "tails": tails, "alpha": "0.05", "power": "0.05",
+         "n1": "20", "n2": "20"}
+    out, code = engine.run(p)
+    assert code == 0 and out["d"] == 0.0 and out["ncp"] == 0.0, out
 
 
 def test_power_not_above_alpha_sensitivity():
@@ -196,8 +217,41 @@ def test_range_before_inconsistent():
 
 # --- NO_SOLUTION (step 10, exit 1) ----------------------------------------------------------
 
-def test_no_solution_a_priori_too_large():
-    err(with_(APRI, d="0.0005"), "NO_SOLUTION", None, exit_code=1)
+@pytest.mark.parametrize("d", ["0.0000000001", "0.0000099999", "9e-6", "1e-300"])
+def test_a_priori_d_below_minimum_is_out_of_range(d):
+    # SPEC 2.8 (a-priori only): d < 0.00001 -> OUT_OF_RANGE, field d, exit 2
+    out = err(with_(APRI, d=d), "OUT_OF_RANGE", "d")
+    assert out["error"].endswith("A-priori analizde etki büyüklüğü 0.00001'den küçük olamaz")
+
+
+def test_a_priori_d_minimum_reported_in_table_order():
+    # d precedes ratio in the field table, so d is reported first
+    err(with_(APRI, d="0.0000000001", ratio="0"), "OUT_OF_RANGE", "d")
+    err(with_(APRI, d="0"), "OUT_OF_RANGE", "d")
+
+
+@pytest.mark.parametrize("d", ["0.00001", "1e-5", 0.00001])
+def test_a_priori_d_minimum_is_inclusive(d):
+    out, code = engine.run(with_(APRI, d=d, tails="2", ratio="0.01"))
+    assert code == 0 and out["n_total"] > 1e12, out
+
+
+@pytest.mark.parametrize("mode_params", [
+    {"mode": "post-hoc", "tails": "2", "d": "0.0000000001", "alpha": "0.05", "n1": "20", "n2": "20"},
+    {"mode": "compromise", "tails": "2", "d": "0.0000000001", "beta_alpha_ratio": "1", "n1": "20",
+     "n2": "20"},
+])
+def test_tiny_d_still_valid_outside_a_priori(mode_params):
+    out, code = engine.run({"test": T2, **mode_params})
+    assert code == 0 and out["df"] == 38, out
+
+
+def test_huge_but_finite_a_priori_is_solved():
+    # SPEC 3.1: no upper limit (G*Power: d = 0.001 -> 25 989 420 per group)
+    out, code = engine.run(with_(APRI, tails="2", d="0.001", power="0.95"))
+    assert code == 0 and (out["n1"], out["n2"]) == (25989420, 25989420), out
+    out, code = engine.run(with_(APRI, d="0.0005"))
+    assert code == 0 and out["n_total"] > 1e8, out
 
 
 def test_no_solution_sensitivity():

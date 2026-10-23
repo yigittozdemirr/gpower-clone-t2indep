@@ -20,7 +20,8 @@ TOOL_DESCRIPTION = (
     "G*Power 't2-indep' güç analizi: iki bağımsız grubun ortalamaları arasındaki fark için t testi "
     "(ör. ilaç ve plasebo grubu). Alan adları CLI ile aynıdır. 'test' her zaman 't2-indep'. "
     "'mode' ve gerekli alanlar: "
-    "a-priori: tails, d, alpha, power, ratio (N2/N1) -> n1, n2, n_total, actual_power; "
+    "a-priori: tails, d, alpha, power, ratio (N2/N1) -> n1, n2, n_total, actual_power "
+    "(gruplardan biri 2'den küçükse ek 'warning' alanı); "
     "post-hoc: tails, d, alpha, n1, n2 -> power; "
     "compromise: tails, d, beta_alpha_ratio, n1, n2 -> alpha, beta, power; "
     "criterion: tails, d, power, n1, n2 -> alpha; "
@@ -41,7 +42,7 @@ INPUT_SCHEMA: dict[str, Any] = {
         "d": {"type": _NUM, "description": "Cohen d etki büyüklüğü (> 0)"},
         "alpha": {"type": _NUM, "description": "I. tip hata olasılığı, 0 < alpha < 1"},
         "power": {"type": _NUM, "description": "Hedef güç (1 - beta), 0 < power < 1"},
-        "ratio": {"type": _NUM, "description": "Dağıtım oranı N2/N1 (> 0), yalnızca a-priori"},
+        "ratio": {"type": _NUM, "description": "Dağıtım oranı N2/N1 (0.01 <= ratio <= 100), yalnızca a-priori"},
         "n1": {"type": _NUM, "description": "Grup 1 örneklem büyüklüğü (tam sayı >= 2)"},
         "n2": {"type": _NUM, "description": "Grup 2 örneklem büyüklüğü (tam sayı >= 2)"},
         "beta_alpha_ratio": {"type": _NUM, "description": "beta/alpha oranı (> 0), yalnızca compromise"},

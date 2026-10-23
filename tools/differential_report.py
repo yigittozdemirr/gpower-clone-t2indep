@@ -56,19 +56,19 @@ def main() -> None:
         "Aynı girdiler hem kâhine hem motora verildi. Fark varsa ya bizim hatamızdır ya kaçırdığımız bir kuraldır "
         "ya da kâhinin kendi hatasıdır; her uyuşmazlık aşağıda sınıflandırılır.",
         "",
-        "- **G*Power:** `oracle/gpower_vectors.csv`, her satır `oracle/screenshots/` altında bir ekran görüntüsüne "
-        "dayanır. Ondalıklar G*Power'ın gösterdiği basamağa kadar, tam sayılar birebir karşılaştırılır.",
+        "- **G*Power:** `oracle/gpower_vectors.csv` (45 vektör, her satır `oracle/screenshots/` altında bir ekran görüntüsüne "
+        "dayanır) ve `oracle/gpower_random_apriori.jsonl` (120 rastgele a-priori; arayüzden aynı araçla okundu). Ondalıklar G*Power'ın gösterdiği basamağa kadar, tam sayılar birebir karşılaştırılır.",
         "- **statsmodels 0.15 (`TTestIndPower`):** bağımsız bir kütüphane. a-priori'de N'yi **kesirli** verir; "
-        "G*Power ve motorumuz yukarı yuvarlar. Karşılaştırma: `n1 = ⌈n1*⌉`, `n2 = ⌈ratio·n1*⌉`. post-hoc güç 1e-6 içinde.",
+        "G*Power ve motorumuz toplamı çift sayıya yukarı yuvarlayıp yarım yukarı böler (LEDGER R-06, R-07). Karşılaştırma: statsmodels'ın sürekli `N*`'ı bu kuralla yuvarlanır. post-hoc güç 1e-6 içinde.",
         "",
     ]
-    lines += _section("G*Power (kâhin)", gpower)
+    lines += _section("G*Power (kâhin, 165 vektör)", gpower)
     lines += _section("statsmodels (ölçek, 600 vektör)", scale)
     lines += [
         "## Bulgular",
         "",
         "- **Kesirli N ile tam sayı N farkı:** statsmodels'ın verdiği kesirli `n1*`, kâhin hatası olan satırlar dışında her a-priori vektöründe "
-        "G*Power kuralıyla (her grup ayrı yukarı) yuvarlandığında motorun tam sayı sonucunu veriyor. Kütüphaneler "
+        "G*Power kuralıyla (çift toplam, yarım yukarı bölme) yuvarlandığında motorun tam sayı sonucunu veriyor. Kütüphaneler "
         "\"kaç denek\" sorusunu yarım hastayla yanıtlıyor; G*Power ve motor yukarı yuvarlayıp gücü yeniden hesaplıyor "
         "(`actual_power`).",
         "- **Kâhin de yanılabilir:** statsmodels'ın kök bulucusu, SciPy'nin merkezî olmayan t dağılımı NaN döndürdüğünde "

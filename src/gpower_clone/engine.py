@@ -32,7 +32,8 @@ MODES: dict[str, tuple[str, ...]] = {
 }
 INT_FIELDS = frozenset({"tails", "n1", "n2"})
 
-N1_MAX = 1e7          # a-priori: n1* above this -> NO_SOLUTION   [SPEC 3.1, H-04]
+D_MIN_A_PRIORI = 1e-5   # a-priori only: d below this -> OUT_OF_RANGE (1e-5 itself is valid)  [SPEC 2.8]
+RATIO_MIN, RATIO_MAX = 0.01, 100.0   # admissible allocation ratio, inclusive   [SPEC 2.8]
 D_MAX = 1000.0        # sensitivity search interval upper end      [SPEC 3.5]
 ALPHA_MIN = 1e-300    # lower end of the alpha search (criterion / compromise)
 ALPHA_MAX = 1.0 - 2.0 ** -53   # largest double below 1
@@ -121,8 +122,10 @@ def _common_out(d: float, alpha: float, tails: int, n1: int, n2: int) -> dict:
     }
 
 
-def _ceil(x: float) -> int:
-    return int(math.ceil(x - 1e-9))
+def _round_digits(x: float, k: int) -> float:
+    """floor(x * 10^k + 0.5) / 10^k: half-up rounding to k decimals   [SPEC 3.1 steps 3-4]."""
+    scale = 10.0 ** k
+    return math.floor(x * scale + 0.5) / scale
 
 
 # ---------------------------------------------------------------------------
@@ -130,37 +133,58 @@ def _ceil(x: float) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _a_priori(tails: int, d: float, alpha: float, power: float, ratio: float) -> dict:
-    def f(n1: float) -> float:
-        return power_of(tails, d, alpha, n1, ratio * n1) - power
+DEGENERATE_WARNING = ("Gruplardan biri 2'den küçük; sonuç G*Power ile uyum için üretildi, "
+                      "klinik olarak kullanılamaz.")
 
-    n1_lo = max(2.0, 2.0 / ratio)
-    f_lo = f(n1_lo)
+
+def _a_priori(tails: int, d: float, alpha: float, power: float, ratio: float) -> dict:
+    """SPEC 3.1: continuous total N*; x = N*/2, N = 2*ceil(round10(x)) >= 4;
+    n1 = floor(N/(1+ratio) + 0.5), n2 = ceil(N - n1) (+ step 4b); outputs recomputed with the integers."""
+    share1 = 1.0 / (1.0 + ratio)
+    share2 = ratio / (1.0 + ratio)
+
+    def f(n_tot: float) -> float:
+        return power_of(tails, d, alpha, n_tot * share1, n_tot * share2) - power
+
+    no_sol = EngineError("NO_SOLUTION",
+                         "a-priori: sayısal taşma; gerekli örneklem büyüklüğü hesaplanamadı", None)
+    lo = 4.0
+    f_lo = f(lo)
     if f_lo >= 0.0:
-        n1_star = n1_lo
+        n_total = 4  # root <= 4; even rounding gives 4   [SPEC 3.1 shortcut]
     else:
-        lo, flo = n1_lo, f_lo
+        # no upper limit (SPEC 3.1): double until the target is reached; only overflow stops us
         hi = 2.0 * lo
-        fhi = f(hi)
-        while fhi < 0.0:
-            if lo > N1_MAX:
-                raise EngineError("NO_SOLUTION",
-                                  "Gerekli örneklem büyüklüğü çok büyük (n1 > 1e7); çözüm üretilemedi",
-                                  None)
-            lo, flo = hi, fhi
+        f_hi = f(hi)
+        while f_hi < 0.0:
+            lo, f_lo = hi, f_hi
             hi = 2.0 * hi
-            fhi = f(hi)
-        n1_star = nm.brentq(f, lo, hi, xtol=1e-10, rtol=4 * nm.EPS, fa=flo, fb=fhi)
-    if n1_star > N1_MAX:
-        raise EngineError("NO_SOLUTION",
-                          "Gerekli örneklem büyüklüğü çok büyük (n1 > 1e7); çözüm üretilemedi", None)
-    n1 = max(2, _ceil(n1_star))
-    n2 = max(2, _ceil(ratio * n1_star))
+            if not math.isfinite(hi):
+                raise no_sol
+            f_hi = f(hi)
+        if math.isnan(f_hi):
+            raise no_sol
+        n_star = nm.brentq(f, lo, hi, xtol=1e-12, rtol=1e-15, fa=f_lo, fb=f_hi)
+        x = _round_digits(n_star / 2.0, 10)
+        if not math.isfinite(x):
+            raise no_sol
+        n_total = max(4, 2 * int(math.ceil(x)))
+    n1 = int(_round_digits(n_total / (1.0 + ratio), 0))
+    n1 = min(max(n1, 0), n_total)
+    n2 = int(math.ceil(n_total - n1))
+    if abs(ratio - 1.0) < 1e-8 and n1 != n2:  # step 4b (a no-op for even N, kept as specified)
+        if n1 < n2:
+            n1 += 1
+        else:
+            n2 += 1
+    n_total = n1 + n2
     out = _common_out(d, alpha, tails, n1, n2)
     out["n1"] = n1
     out["n2"] = n2
-    out["n_total"] = n1 + n2
+    out["n_total"] = n_total
     out["actual_power"] = power_of(tails, d, alpha, float(n1), float(n2))
+    if n1 < 2 or n2 < 2:
+        out["warning"] = DEGENERATE_WARNING
     return out
 
 
@@ -231,8 +255,8 @@ def _sensitivity(tails: int, alpha: float, power: float, n1: int, n2: int) -> di
 
     no_sol = EngineError("NO_SOLUTION",
                          "sensitivity: d ∈ [0, 1000] aralığında hedef güce ulaşılamıyor", None)
-    lo, g_lo = 0.0, g(0.0)
-    if g_lo >= 0.0:  # cannot happen after the power > alpha check, kept for safety
+    lo, g_lo = 0.0, (0.0 if power == alpha else g(0.0))
+    if g_lo >= 0.0:  # power == alpha (= power at d = 0) -> d = 0, ncp = 0   [SPEC 3.5]
         d = 0.0
     else:
         # expand the upper end geometrically inside [0, D_MAX] (keeps the ncp modest)
@@ -303,7 +327,7 @@ _RANGE_MSG = {
     "power": "'power' 0 ile 1 arasında olmalı (0 < power < 1)",
     "beta_alpha_ratio": "'beta_alpha_ratio' 0'dan büyük olmalı",
     "d": "'d' 0'dan büyük olmalı",
-    "ratio": "'ratio' 0'dan büyük olmalı",
+    "ratio": "Allocation ratio kabul edilebilir aralığın (0.01, 100) dışında",
     "n1": "'n1' en az 2 olmalı",
     "n2": "'n2' en az 2 olmalı",
 }
@@ -314,7 +338,9 @@ def _in_range(field: str, v: float | int) -> bool:
         return v in (1, 2)
     if field in ("alpha", "power"):
         return 0.0 < v < 1.0
-    if field in ("beta_alpha_ratio", "d", "ratio"):
+    if field == "ratio":
+        return RATIO_MIN <= v <= RATIO_MAX
+    if field in ("beta_alpha_ratio", "d"):
         return v > 0.0
     if field in ("n1", "n2"):
         return v >= 2
@@ -367,8 +393,11 @@ def _validate_and_compute(pairs: list[tuple[str, Any]]) -> dict:
     for f in fields:
         if not _in_range(f, vals[f]):
             raise EngineError("OUT_OF_RANGE", "Aralık dışı değer: " + _RANGE_MSG[f], f)
+        if f == "d" and mode == "a-priori" and vals[f] < D_MIN_A_PRIORI:
+            raise EngineError("OUT_OF_RANGE", "Aralık dışı değer: A-priori analizde etki büyüklüğü "
+                                              "0.00001'den küçük olamaz", f)
     # 9. consistency
-    if mode in ("a-priori", "sensitivity") and vals["power"] <= vals["alpha"]:
+    if mode in ("a-priori", "sensitivity") and vals["power"] < vals["alpha"]:
         raise EngineError("INCONSISTENT", "Power, alpha değerinden büyük olmalı", "power")
     # 10. compute
     if mode == "a-priori":
