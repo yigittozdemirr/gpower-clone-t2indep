@@ -26,15 +26,21 @@ Her satır: **iddia → kanıt → nasıl sınandı**. `[AJAN]` satırı binary 
 
 ## B. Kılavuzda OLMAYAN davranış (asıl hedef)
 
-| # | İddia | Etiket | Bugünkü kanıt | Gereken `[REA]` kanıtı | Ayırt edici deney |
-|---|---|---|---|---|---|
-| H-01 | Eşit olmayan oranda **her grup ayrı yuvarlanır**: sürekli `n1*` için `n1 = ⌈n1*⌉`, `n2 = ⌈ratio·n1*⌉` (n2, n1'in tam katı olmayabilir) | `[AJAN]` | Kılavuzda başka bir testin (Fisher exact) örneği: ratio 2 → N = 443 (148 ve 295); 2·148 = 296 ≠ 295 `[DOK]`. t testi için doğrudan kanıt yok. | a-priori çözücü fonksiyonunda n1 ve n2'nin ayrı tavan (ceil) çağrısı; `Allocation ratio N2/N1` dizesine referans veren kod | E-01…E-06, oracle V04–V12 |
-| H-02 | Arama alt sınırı: her grup en az 2 (`n1 ≥ max(2, 2/ratio)`) | `[AJAN]` | Yok | Çözücünün başlangıç değeri / alt sınır sabiti | E-07, E-08, V18, V19 |
-| H-03 | Çok küçük etkide üst sınır: `n1* > 1e7` → çözüm yok | `[AJAN]` | Yok (sınır değeri tamamen tahmin) | İterasyon üst sınırı sabiti ve hata dizesi | E-11, V16 |
-| H-04 | `power ≤ alpha` reddedilir | `[AJAN]` | CONTRACT §2.4 hata örneği aynı mesajı gösteriyor `[DOK]`; G*Power'ın tepkisi bilinmiyor | Hata/uyarı dizesi ve onu üreten karşılaştırma | E-12, E-13, V20, V21, V29 |
-| H-05 | İterasyonun durma koşulu (tolerans / adım) | `[AJAN]` | Motorumuz Brent, xtol 1e-10 | Çözücü döngüsünün tolerans sabiti | Yuvarlama sınırına çok yakın `n1*` olan vektörler |
-| H-06 | Geçersiz girdiye tepki (ratio 0, n1 = 1, α ≥ 1) | `[AJAN]` | CONTRACT §5 aralıkları `[DOK]` | Girdi doğrulama dizeleri | V32, V33 |
-| H-07 | Çift kuyrukta criterion ve compromise α'yı iki kuyruğa bölerek çözer | `[AJAN]` | Açık vektörler yalnızca tek kuyruk | Kritik değer çağrısında `α/2` | E-15, E-16, V30, V31 |
+"GUI ✔" = G*Power 3.1.9.7 arayüzünden otomatik toplanan kâhin vektörleriyle (oracle/, ekran görüntüleriyle) diferansiyel olarak doğrulandı. Bu güçlü bir kanıttır ama **binary kanıtı değildir**; satır, Ghidra'da fonksiyon adresi ya da dize referansı bulunana kadar `[AJAN]` etiketinde kalır.
+
+| # | İddia (güncel) | Etiket | Kanıt | Gereken `[REA]` kanıtı |
+|---|---|---|---|---|
+| H-01 | a-priori dağıtım: sürekli toplam `N*` **çift sayıya** yukarı yuvarlanır (`N = 2⌈N*/2⌉`); `n1 = ⌊N/(1+ratio) + 0.5⌋` (yarım yukarı), `n2 = N − n1` | `[AJAN]` GUI ✔ | **140/140** a-priori vektör (oracle V01–V42 + `oracle/gpower_random_apriori.jsonl`'daki 120 rastgele). Bankacı yuvarlaması 139/140 (V04: 58.5 → 59). İlk hipotez ("her grup ayrı yukarı", Fisher örneğinden) 68/140 ile **çürütüldü** (HALLUCINATIONS H-7). | Çözücüde `2*ceil(x/2)` ya da eşdeğeri; bölmede `floor(x+0.5)` |
+| H-01b | Gerçekleşen güç hedefin **altında** kalabilir; G*Power düzeltmez | `[AJAN]` GUI ✔ | V07: 404/282, 0.8998856 < 0.90; V10: 663/33, 0.7994111 < 0.80 | Bölmeden sonra güç kontrolünün olmaması |
+| H-02 | Arama `N > 2`'den başlar; en küçük sonuç N = 4; bir grup **1 ya da 0** olabilir | `[AJAN]` GUI ✔ | V19 (d 10): 2/2; V34: 3/1; V35: 1/3; **V36 (ratio 0.1, d 10): 4/0, ncp 0, güç 0.05** (G*Power'ın dejenere sonucu) | Çözücünün başlangıç değeri |
+| H-03 | Üst sınır yok (en azından 5·10⁷'ye kadar) | `[AJAN]` GUI ✔ | V16 (d 0.001): 25 989 420 / 25 989 420. Bizim 1e7 sınırımız yanlıştı (HALLUCINATIONS H-8). | İterasyon üst sınırı sabiti |
+| H-04 | `power < alpha` reddedilir; `power = alpha` kabul edilir | `[AJAN]` GUI ✔ | V20, V41: "Power must be greater than or equal to alpha." V21 → 2/2; V29 (sensitivity) → d = 0 | Dizenin binary'deki adresi ve onu çağıran karşılaştırma (`<` mı `<=` mi) |
+| H-05 | İterasyonun durma koşulu (tolerans / adım) | `[AJAN]` | Doğrudan gözlenemiyor; 140/140 eşleşme toleransın N'yi değiştirecek kadar kaba olmadığını gösteriyor | Çözücü döngüsünün tolerans sabiti |
+| H-06 | Oran kabul aralığı **[0.01, 100]** (uçlar dahil); post-hoc'ta n1 = 1 kabul | `[AJAN]` GUI ✔ | V32, V39, V40: "The allocation ratio falls outside the admissible range (0.01, 100)." V37 (0.01) ve V38 (100) hesaplanıyor. V33: n1 = 1 hesaplanıyor (biz CONTRACT §5 gereği reddediyoruz) | Dize adresi ve karşılaştırma sabitleri (0.01, 100) |
+| H-07 | Çift kuyrukta criterion ve compromise α'yı iki kuyruğa bölerek çözer | `[AJAN]` GUI ✔ | V30, V31 7 basamakta eşleşiyor | Kritik değer çağrısında `α/2` |
+| D-02 | Çift kuyrukta güç iki kuyruğun toplamı | `[DOK]` + GUI ✔ | V24: 0.0551613 (yalnız üst kuyruk 0.0402359 olurdu) | — |
+
+Eski deney listesi ([rea/experiments.jsonl](rea/experiments.jsonl)) tarihsel kayıt olarak duruyor: E-01…E-06'daki iki hipotez (A ve B) de G*Power tarafından çürütüldü.
 
 ## C. Binary bulguları (REA + Ghidra)
 
@@ -48,18 +54,7 @@ _REA oturumu yeniden başlatıldıktan sonra doldurulacak. Her satır şu biçim
   Sınama : <hangi deney/test bunu doğruluyor>
 ```
 
-## D. Deneyler
+## D. Deneyler ve kâhin
 
-Girdiler ve iki rakip hipotezin tahminleri: [rea/experiments.jsonl](rea/experiments.jsonl). G*Power arayüzünden toplanan sonuçlar: [oracle/](oracle/). Karşılaştırma: `uv run python rea/check_observations.py` ve `uv run pytest tests/test_differential.py`.
-
-| Deney | Girdi | Hipotez B (SPEC) | Rakip hipotez A |
-|---|---|---|---|
-| E-01 | 1 kuyruk, d 0.5, α .05, güç .95, ratio 3 | 59 / 175 | 59 / 177 |
-| E-02 | 2 kuyruk, d 0.5, α .05, güç .80, ratio 1.5 | 54 / 80 | 53 / 80 |
-| E-03 | 2 kuyruk, d 0.8, α .05, güç .80, ratio 0.25 | 63 / 16 | 61 / 16 |
-| E-04 | 2 kuyruk, d 0.3, α .01, güç .90, ratio 0.7 | 404 / 283 | 403 / 283 |
-| E-05 | 2 kuyruk, d 0.5, α .05, güç .80, ratio 2 | 48 / 96 | 48 / 96 |
-| E-06 | 1 kuyruk, d 0.5, α .05, güç .95, ratio 0.5 | 131 / 66 | 131 / 66 |
-| E-14 | 2 kuyruk, d 0.5, α .05, güç .80, ratio 0.05 | 662 / 34 | 661 / 34 |
-
-Hipotez A: en küçük tam sayı `n1` aranır, `n2 = ⌈ratio·n1⌉`.
+- G*Power arayüzünden toplanan vektörler: [oracle/gpower_vectors.csv](oracle/gpower_vectors.csv) (42 vektör, her biri `oracle/screenshots/Vxx.png`), [oracle/gpower_random_apriori.jsonl](oracle/gpower_random_apriori.jsonl) (120 rastgele a-priori). Toplama aracı: [tools/gpower_gui_collect.py](tools/gpower_gui_collect.py) (Windows UI otomasyonu; G*Power'ın kendi alanlarını okur, fare kullanmaz).
+- Karşılaştırma: `uv run pytest tests/test_differential.py`, rapor: [tests/AGREEMENT_REPORT.md](tests/AGREEMENT_REPORT.md).
