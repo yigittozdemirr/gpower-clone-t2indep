@@ -19,7 +19,12 @@ gpower-clone-mcp = "gpower_clone.mcp_server:main"
 gpower-clone-agent = "gpower_clone.agent:main"
 
 [dependency-groups]
-dev = ["pytest", "scipy", "mcp"]
+dev = [
+    "pytest",
+    "scipy",
+    "mcp",
+    "statsmodels>=0.15.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gpower_clone"]

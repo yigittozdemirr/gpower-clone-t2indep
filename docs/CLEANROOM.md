@@ -5,10 +5,10 @@
 | | İnceleme (REA) oturumu | Yazım oturumu |
 |---|---|---|
 | Gördüğü | G*Power davranışı (kara kutu), kılavuz, yayınlar, CONTRACT.md | **Yalnızca** `SPEC.md` + `CONTRACT.md` |
-| Ürettiği | `SPEC.md`, `rea/KANIT_DEFTERI.md`, `rea/experiments.jsonl`, `rea/check_observations.py` | `src/`, `tests/`, `pyproject.toml`, `docs/IMPLEMENTATION_NOTES.md` |
+| Ürettiği | `SPEC.md`, `LEDGER.md`, `rea/experiments.jsonl`, `oracle/`, `tests/differential.py`, `tests/test_spec_gherkin.py` | `src/`, `tests/`, `pyproject.toml`, `docs/IMPLEMENTATION_NOTES.md` |
 | Görmediği | — | G*Power, `rea/`, inceleme betikleri |
 
-- Yazım oturumu sıfır bağlamla başlatıldı; verilen istem birebir [cleanroom_prompt.md](cleanroom_prompt.md)'de.
+- Yazım oturumu sıfır bağlamla başlatıldı; verilen istem birebir [prompts/2-yazim-oturumu.md](../prompts/2-yazim-oturumu.md)'de.
 - Git geçmişi sırayı gösterir: önce inceleme commit'i (SPEC + kanıt defteri), sonra uygulama commit'i.
 - Teslim edilen kodda decompile çıktısı yok, GPower.exe yok (`.gitignore` `*.exe`'yi de dışlar).
 - REA bulgusu SPEC'i değiştirirse (örn. H-01 yanlış çıkarsa): inceleme oturumu SPEC'i günceller, yazım oturumu yalnızca SPEC farkıyla yeniden çalışır.
