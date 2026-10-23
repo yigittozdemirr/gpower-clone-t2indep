@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gpower-clone"
+version = "1.0.0"
+description = "Clean-room reimplementation of the G*Power 't2-indep' power analysis (two independent means, t test)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.2"]
+agent = ["mcp>=1.2", "anthropic>=0.40"]
+
+[project.scripts]
+gpower-clone = "gpower_clone.cli:main"
+gpower-clone-mcp = "gpower_clone.mcp_server:main"
+gpower-clone-agent = "gpower_clone.agent:main"
+
+[dependency-groups]
+dev = ["pytest", "scipy", "mcp"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gpower_clone"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

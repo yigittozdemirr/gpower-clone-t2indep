@@ -1,0 +1,34 @@
+id,mode,tails,d,alpha,power,ratio,n1,n2,beta_alpha_ratio,amac
+V01,a-priori,1,0.5,0.05,0.95,1,,,,acik vektor (CONTRACT ornegi)
+V02,a-priori,2,0.5,0.05,0.95,1,,,,odev ek dokumani ornegi
+V03,a-priori,2,0.5,0.05,0.8,1,,,,klasik d=0.5 guc .80
+V04,a-priori,1,0.5,0.05,0.95,3,,,,esit olmayan oran: n2 = 3*n1 mi?
+V05,a-priori,2,0.5,0.05,0.8,1.5,,,,esit olmayan oran
+V06,a-priori,2,0.8,0.05,0.8,0.25,,,,esit olmayan oran (n2 kucuk)
+V07,a-priori,2,0.3,0.01,0.9,0.7,,,,esit olmayan oran
+V08,a-priori,2,0.5,0.05,0.8,2,,,,esit olmayan oran (tam kat)
+V09,a-priori,1,0.5,0.05,0.95,0.5,,,,esit olmayan oran
+V10,a-priori,2,0.5,0.05,0.8,0.05,,,,uc oran
+V11,a-priori,2,0.5,0.05,0.8,1.37,,,,kesirli oran
+V12,a-priori,1,0.35,0.025,0.9,2.5,,,,kesirli oran tek kuyruk
+V13,a-priori,2,0.2,0.05,0.8,1,,,,kucuk etki
+V14,a-priori,2,0.1,0.05,0.9,1,,,,kucuk etki
+V15,a-priori,2,0.02,0.05,0.8,1,,,,cok kucuk etki
+V16,a-priori,2,0.001,0.05,0.95,1,,,,asiri kucuk etki (ust sinir)
+V17,a-priori,2,2.5,0.05,0.8,1,,,,buyuk etki
+V18,a-priori,2,5,0.05,0.8,1,,,,cok buyuk etki (alt sinir)
+V19,a-priori,2,10,0.05,0.8,1,,,,asiri buyuk etki (alt sinir)
+V20,a-priori,1,0.5,0.05,0.04,1,,,,guc < alfa
+V21,a-priori,1,0.5,0.05,0.05,1,,,,guc = alfa
+V22,a-priori,2,0.65,0.001,0.99,1,,,,cok kucuk alfa
+V23,post-hoc,1,0.5,0.05,,,88,88,,acik vektor
+V24,post-hoc,2,0.1,0.05,,,10,10,,cift kuyruk iki kuyruk da sayiliyor mu?
+V25,post-hoc,2,0.5,0.05,,,40,20,,esit olmayan grup
+V26,post-hoc,2,1.2,0.01,,,5,7,,kucuk n
+V27,post-hoc,2,0.5,0.05,,,2,2,,en kucuk n
+V28,sensitivity,2,,0.05,0.8,,20,30,,cift kuyruk sensitivity
+V29,sensitivity,2,,0.05,0.05,,20,20,,guc = alfa
+V30,criterion,2,0.5,,0.8,,30,45,,cift kuyruk criterion
+V31,compromise,2,0.5,,,,30,45,4,cift kuyruk compromise
+V32,a-priori,2,0.5,0.05,0.8,0,,,,gecersiz: oran 0
+V33,post-hoc,2,0.5,0.05,,,1,10,,gecersiz: n1 = 1
