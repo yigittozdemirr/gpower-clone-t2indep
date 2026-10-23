@@ -6,7 +6,7 @@
 |---|---|---|
 | 1 · İnceleme | Claude Code (masaüstü), Claude Opus 5.5 | Ödev analizi, hipotez betikleri, SPEC.md, LEDGER.md, deney listesi, kurulumlar (Node, Ghidra, REA), oracle listesi, diferansiyel test, belgeler; binary incelemesi (REA + Ghidra) |
 | 2 · Yazım (temiz oda) | Claude Code alt ajanı, sıfır bağlam, Claude Opus 5.5 | Yalnızca SPEC.md + CONTRACT.md ile motor, CLI, MCP, ajan katmanı ve 419 test |
-| Ürün ajanı | `gpower-clone-agent`, varsayılan `claude-sonnet-5-5` | Hekimin Türkçe sorusunu MCP aracıyla yanıtlar (eval/) |
+| Ürün ajanı | `gpower-clone-agent`, varsayılan `claude-sonnet-5-5` | Hekimin Türkçe sorusunu MCP aracıyla yanıtlar. **Canlı çalıştırılmadı:** API ücretli, anahtar alınmadı. |
 
 ## Ölçülen tüketim
 
@@ -17,7 +17,7 @@
 
 - Abonelik: Claude **Pro**. İlk yarının sonunda 5 saatlik kullanım sınırının %77'si dolmuştu. Ajanlı geliştirmede asıl darboğaz kullanım sınırı oluyor.
 - Maliyet: Pro abonelik sabit ücretli olduğu için bu çalışmanın ek bir para maliyeti yok. API ile yapılsaydı maliyeti token sayısı × güncel liste fiyatı ile hesaplanmalı. Fiyatı ezberden yazmıyoruz.
-- Ürün ajanının soru başına token ve süre değerleri `eval/EVAL_REPORT.md`'de ölçülüyor (her araç çağrısı `logs/agent_calls.jsonl`'da).
+- Ürün ajanının soru başına token ve süre ölçümü ücretli API gerektirdiği için yapılmadı; düzenek `eval/run_eval.py`'de hazır.
 
 ## İterasyonlar
 

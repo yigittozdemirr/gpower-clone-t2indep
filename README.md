@@ -2,7 +2,7 @@
 
 **YZM301 · Teardown Sprint** · Aile: **t testi, iki bağımsız ortalama (ilaç ve plasebo)** · Sözleşme sürümü 1.0.0
 
-> **Yapılan katmanlar:** ✅ CLI (temel) · ✅ MCP sunucusu (+15) · ✅ AI ajanı (+10, MCP üzerinden, Türkçe)
+> **Yapılan katmanlar:** ✅ CLI (temel) · ✅ MCP sunucusu (+15) · ⚠️ AI ajanı (+10): kodu ve testleri hazır, canlı değerlendirme yapılmadı (ücretli API gerektiriyor; ayrıntı aşağıda)
 > Modlar: ✅ a-priori ✅ post-hoc ✅ compromise ✅ criterion ✅ sensitivity
 
 Bu proje, G*Power'ın bir hesabını, iki bağımsız grubun ortalamalarını karşılaştıran t testini, temiz odada yeniden yazar ve ajanların az token harcayarak kullanabileceği bir CLI, MCP sunucusu ve ajanın arkasına koyar. **Bu yazılım G*Power değildir ve G*Power olarak sunulmaz.**
@@ -85,7 +85,14 @@ Claude Code'a ekleme örneği: `claude mcp add gpower-clone -- gpower-clone-mcp`
 gpower-clone-agent "İlaç ile plaseboyu karşılaştıracağız, d = 0.5, iki yönlü, alfa 0.05, güç %80. Her gruba kaç hasta?"
 ```
 
-Bir `ANTHROPIC_API_KEY` ortam değişkeni gerekir. Ajan MCP aracını çağırır ve **hesabı asla kendisi yapmaz**. "Orta etki" gibi bir kategoriyi sessizce değere çevirmez. Her araç çağrısı `logs/agent_calls.jsonl`'a yazılır. 10 soruluk değerlendirme seti ve MCP ↔ GUI token karşılaştırması: [eval/](eval/) (`uv run --all-extras python eval/run_eval.py`). Yalnızca kurgusal senaryolar kullanılır.
+Bir `ANTHROPIC_API_KEY` ortam değişkeni gerekir. Ajan MCP aracını çağırır ve **hesabı asla kendisi yapmaz**. "Orta etki" gibi bir kategoriyi sessizce değere çevirmez. Her araç çağrısı `logs/agent_calls.jsonl`'a yazılır. Yalnızca kurgusal senaryolar kullanılır.
+
+**Durum: canlı çalıştırılmadı.** Anthropic API kullanımı ücretli olduğu ve bu çalışma için bir API anahtarı alınmadığı için ajan gerçek bir modelle çalıştırılmadı. Bu yüzden `logs/agent_calls.jsonl`, `eval/EVAL_REPORT.md` ve ölçülmüş MCP ↔ GUI token karşılaştırması **yok**. Hazır olanlar:
+
+- Ajan kodu (`src/gpower_clone/agent.py`): Claude + MCP stdio istemcisi, araç döngüsü, CONTRACT §8 biçiminde log.
+- `tests/test_agent.py`: araç döngüsü ve log satırı biçimi, sahte (fake) bir model istemcisi ile **gerçek** MCP sunucusu üzerinden test ediliyor.
+- 10 soruluk değerlendirme seti ([eval/questions.jsonl](eval/questions.jsonl)): her soru için beklenen test ailesi, parametreler ve motorun ürettiği beklenen N.
+- Değerlendirme ve token karşılaştırma düzeneği ([eval/run_eval.py](eval/run_eval.py)): bir API anahtarıyla tek komutla çalışır (`uv run --all-extras python eval/run_eval.py --gui-screenshot oracle/screenshots/V03.png`).
 
 ## Teslim belgeleri
 
