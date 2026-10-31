@@ -1,6 +1,13 @@
 # gpower-clone · `t2-indep`
 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![uv](https://img.shields.io/badge/uv-DE5FE9?style=flat-square&logo=uv&logoColor=white)](https://docs.astral.sh/uv/)
+[![MCP](https://img.shields.io/badge/MCP-sunucu-555555?style=flat-square)](https://modelcontextprotocol.io/)
+[![Tests](https://img.shields.io/badge/test-1304-2EA44F?style=flat-square&logo=pytest&logoColor=white)](tests/AGREEMENT_REPORT.md)
+
 **YZM301 · Teardown Sprint** · Aile: **t testi, iki bağımsız ortalama (ilaç ve plasebo)** · Sözleşme sürümü 1.0.0
+
+**İçindekiler:** [Kurulum](#kurulum-ve-çalıştırma) · [Testler](#testler) · [MCP sunucusu](#mcp-sunucusu) · [AI ajanı](#ai-ajanı) · [Teslim belgeleri](#teslim-belgeleri) · [Referans](#referans-ve-sürüm-bilgisi) · [Atıf](#atıf)
 
 > **Yapılan katmanlar:** ✅ CLI (temel) · ✅ MCP sunucusu (+15) · ⚠️ AI ajanı (+10): kodu ve testleri hazır, canlı değerlendirme yapılmadı (ücretli API gerektiriyor; ayrıntı aşağıda)
 > Modlar: ✅ a-priori ✅ post-hoc ✅ compromise ✅ criterion ✅ sensitivity
@@ -47,6 +54,8 @@ uv run pytest -q
 
 ## MCP sunucusu
 
+MCP desteği isteğe bağlı bir eklentidir: `uv tool install --force ".[mcp]"`
+
 ```bash
 gpower-clone-mcp
 ```
@@ -81,6 +90,8 @@ Claude Code'a ekleme örneği: `claude mcp add gpower-clone -- gpower-clone-mcp`
 
 ## AI ajanı
 
+Ajan desteği isteğe bağlı bir eklentidir: `uv tool install --force ".[agent]"`
+
 ```bash
 gpower-clone-agent "İlaç ile plaseboyu karşılaştıracağız, d = 0.5, iki yönlü, alfa 0.05, güç %80. Her gruba kaç hasta?"
 ```
@@ -99,10 +110,11 @@ Bir `ANTHROPIC_API_KEY` ortam değişkeni gerekir. Ajan MCP aracını çağırı
 | Belge | İçerik |
 |---|---|
 | [SPEC.md](SPEC.md) | Temiz oda belirtimi; kabul kriterleri Gherkin biçiminde (testlerle doğrudan çalıştırılır) |
+| [CONTRACT.md](CONTRACT.md) | Arayüz sözleşmesi |
 | [LEDGER.md](LEDGER.md) | Kanıt defteri: `[DOK]`, `[REA]`, `[AJAN]` |
-| [HALLUCINATIONS.md](HALLUCINATIONS.md) | Ajanların yanlış çıkardığı 6 şey, nasıl ve hangi testle yakalandığı |
+| [HALLUCINATIONS.md](HALLUCINATIONS.md) | Ajanların yanlış çıkardığı 10 şey, nasıl ve hangi testle yakalandığı |
 | [AGENT_COST.md](AGENT_COST.md) | Ajanlar, token, iterasyonlar, neyi farklı yapardık |
-| [prompts/](prompts/) | İki oturumun ilk prompt'ları |
+| [prompts/](prompts/) | İnceleme, yazım ve yazım revizyonu oturumlarının prompt'ları |
 | [oracle/](oracle/) | G*Power vektörleri (CSV) ve ekran görüntüleri; 600 statsmodels ölçek vektörü |
 | [tests/](tests/) | Diferansiyel test ve [uyum raporu](tests/AGREEMENT_REPORT.md) |
 | [docs/CLEANROOM.md](docs/CLEANROOM.md) | Temiz oda süreci ve "doğru olduğunu nasıl kanıtlarız?" |
